@@ -1,20 +1,62 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# 📚 BookEase
 
-# Run and deploy your AI Studio app
+BookEase is a modern booking and management platform designed to simplify scheduling, reservations, and resource management.
 
-This contains everything you need to run your app locally.
+## 🚀 Live Demo
 
-View your app in AI Studio: https://ai.studio/apps/11ad73f7-1e0c-4cf6-be0b-3c785970b44f
+https://bookease-1029177846155.asia-southeast1.run.app
 
-## Run Locally
+---
 
-**Prerequisites:**  Node.js
+## ✨ Features
+
+- User-friendly dashboard
+- Booking management
+- Schedule tracking
+- Resource allocation
+- Secure authentication
+- Mobile responsive UI
+- Fast cloud deployment
+
+---
+
+## 🛠 Technology Stack
+
+- React.js
+- JavaScript
+- Node.js
+- Firebase
+- Google Cloud Run
+
+---
+
+## 📖 How It Works
+
+1. User signs in
+2. Creates or manages bookings
+3. Tracks schedules
+4. Receives updates instantly
+
+---
+
+## 🎯 Project Goal
+
+BookEase helps businesses and users manage bookings efficiently while reducing manual work and scheduling conflicts.
+
+---
+
+## 🌐 Deployment
+
+Hosted on Google Cloud Run.
+
+---
+
+## 👨‍💻 Author
+
+Siva Builds AI
+
+Blog:
+https://sivabuildsai.blogspot.com
+Link on the Project https://bookease-1029177846155.asia-southeast1.run.app
 
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
