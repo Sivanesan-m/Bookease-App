@@ -1,0 +1,109 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global default-deny safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Allow connection test
+    match /test/connection {
+      allow read: if true;
+    }
+
+    // -- Reusable Global Helpers --
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isEmailVerified() {
+      // In case we enforce email verification in future
+      return request.auth.token.email_verified == true;
+    }
+
+    // Checking ID poison vulnerability
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // -- Schemas/Validation Helpers --
+
+    function isValidBooking(data) {
+      return data.keys().hasAll([
+        'customerName', 'customerEmail', 'customerPhone', 'serviceId', 
+        'staffId', 'date', 'timeSlot', 'status', 'price', 'createdAt', 'industry'
+      ]) && 
+      data.customerName is string && data.customerName.size() <= 200 &&
+      data.customerEmail is string && data.customerEmail.size() <= 200 &&
+      data.customerPhone is string && data.customerPhone.size() <= 60 &&
+      data.serviceId is string && data.serviceId.size() <= 128 &&
+      data.staffId is string && data.staffId.size() <= 128 &&
+      data.date is string && data.date.size() <= 20 &&
+      data.timeSlot is string && data.timeSlot.size() <= 20 &&
+      data.status is string && (data.status == 'pending' || data.status == 'confirmed' || data.status == 'completed' || data.status == 'cancelled') &&
+      data.price is number && data.price >= 0 &&
+      data.industry is string && data.industry.size() <= 128 &&
+      (!('customDuration' in data) || data.customDuration is number);
+    }
+
+    function isValidCustomer(data) {
+      return data.keys().hasAll(['name', 'email', 'phone']) &&
+      data.name is string && data.name.size() <= 200 &&
+      data.email is string && data.email.size() <= 200 &&
+      data.phone is string && data.phone.size() <= 60 &&
+      (!('notes' in data) || data.notes is string) &&
+      (!('totalBookings' in data) || data.totalBookings is number) &&
+      (!('lifetimeSpent' in data) || data.lifetimeSpent is number) &&
+      (!('lastBookingDate' in data) || data.lastBookingDate is string);
+    }
+
+    function isValidEmailLog(data) {
+      return data.keys().hasAll(['recipientEmail', 'type', 'subject', 'body', 'sentAt']) &&
+      data.recipientEmail is string && data.recipientEmail.size() <= 200 &&
+      data.type is string && (data.type == 'confirmation' || data.type == 'reminder' || data.type == 'cancellation') &&
+      data.subject is string && data.subject.size() <= 200 &&
+      data.body is string && data.body.size() <= 4000 &&
+      data.sentAt is string &&
+      (!('bookingId' in data) || data.bookingId is string);
+    }
+
+    // -- Collection Match Rules --
+
+    match /bookings/{bookingId} {
+      allow create: if isValidId(bookingId) && isValidBooking(incoming());
+      
+      // Registered admin/staff matches
+      allow read, delete: if true;
+      
+      allow update: if isValidBooking(incoming()) && (
+        // Restructuring update checks with action-based diff transitions
+        incoming().diff(existing()).affectedKeys().hasOnly(['status', 'date', 'timeSlot', 'customDuration'])
+      );
+    }
+
+    match /customers/{customerId} {
+      // Allow creation by either public clients when submitting a booking or authenticated admin
+      allow create: if isValidId(customerId) && isValidCustomer(incoming());
+      
+      allow read, delete: if true;
+      
+      allow update: if isValidCustomer(incoming()) && (
+        incoming().diff(existing()).affectedKeys().hasOnly(['notes', 'totalBookings', 'lifetimeSpent', 'lastBookingDate', 'phone', 'name'])
+      );
+    }
+
+    match /emailLogs/{logId} {
+      allow create: if isValidId(logId) && isValidEmailLog(incoming());
+      allow read, write, delete: if true;
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "BookEase",
+  "description": "Full-featured Appointment Booking SaaS for salons, fitness trainers, tutors, doctors, consultants, and coaches with a mock/real Supabase real-time backend.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

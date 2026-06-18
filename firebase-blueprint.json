@@ -1,0 +1,68 @@
+{
+  "entities": {
+    "Booking": {
+      "title": "Booking",
+      "description": "Represents an scheduled appointment booking.",
+      "type": "object",
+      "properties": {
+        "customerName": { "type": "string" },
+        "customerEmail": { "type": "string" },
+        "customerPhone": { "type": "string" },
+        "customerNotes": { "type": "string" },
+        "serviceId": { "type": "string" },
+        "staffId": { "type": "string" },
+        "date": { "type": "string" },
+        "timeSlot": { "type": "string" },
+        "customDuration": { "type": "number" },
+        "status": { "type": "string", "enum": ["pending", "confirmed", "completed", "cancelled"] },
+        "price": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "industry": { "type": "string" }
+      },
+      "required": ["customerName", "customerEmail", "customerPhone", "serviceId", "staffId", "date", "timeSlot", "status", "price", "createdAt", "industry"]
+    },
+    "Customer": {
+      "title": "Customer",
+      "description": "Represents local CRM customer record profile with aggregation metadata metrics.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "notes": { "type": "string" },
+        "totalBookings": { "type": "number" },
+        "lifetimeSpent": { "type": "number" },
+        "lastBookingDate": { "type": "string" }
+      },
+      "required": ["name", "email", "phone"]
+    },
+    "EmailLog": {
+      "title": "EmailLog",
+      "description": "Log transcripts of confirmation / reminder / cancellation emails sent to customers.",
+      "type": "object",
+      "properties": {
+        "bookingId": { "type": "string" },
+        "recipientEmail": { "type": "string" },
+        "type": { "type": "string", "enum": ["confirmation", "reminder", "cancellation"] },
+        "subject": { "type": "string" },
+        "body": { "type": "string" },
+        "sentAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["recipientEmail", "type", "subject", "body", "sentAt"]
+    }
+  },
+  "firestore": {
+    "bookings/{bookingId}": {
+      "schema": "Booking",
+      "description": "Store individual bookings dynamically"
+    },
+    "customers/{customerId}": {
+      "schema": "Customer",
+      "description": "Store aggregated user data"
+    },
+    "emailLogs/{logId}": {
+      "schema": "EmailLog",
+      "description": "Notification transmission logs"
+    }
+  }
+}
